@@ -81,7 +81,18 @@ struct atmel_i2c_platform_data {
 	uint8_t abs_width_min;
 	uint8_t abs_width_max;
 	int gpio_irq;
+	int mach_type;
 	int (*power)(int on);
+	const char *input_name;
+	uint16_t key_type;
+	struct atmel_virtual_key *virtual_key;
+	uint8_t virtual_key_num;
+	uint8_t inactive_left;
+	uint8_t inactive_right;
+	uint8_t inactive_top;
+	uint8_t inactive_bottom;
+	uint16_t gap_area;
+	uint16_t key_area;
 	int8_t config_T6[6];
 	int8_t config_T7[3];
 	int8_t config_T8[8];
