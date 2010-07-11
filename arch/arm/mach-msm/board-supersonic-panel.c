@@ -209,9 +209,9 @@ struct s1d_regs {
 	// end registers
 	
 	{0x001C, 0x1500},
-	{0x0020, 0x3047},
-	{0x0024, 0x401A},
-	{0x0028, 0x031A},
+	{0x0020, 0x3047}, //original value 3047
+	{0x0024, 0x4015}, // original value 401A, last 5 bits set PLL clock div, 1A=27 div - netarchy 15=16div=52fps with 4x pixel clock div, 14 = tearing and 53fps
+	{0x0028, 0x031A}, // Pixel Clock select, where we get our base clock from, default 031A, sets clock origin from PLL - netarchy
 	{0x002C, 0x0001},
 	{REG_WAIT, 0x0004}, /* increase delay 1ms -> 4ms */
 	{0x0084, 0x0215},
@@ -220,8 +220,8 @@ struct s1d_regs {
 	{0x002C, 0x0002},
 	{REG_WAIT, 0x0004}, /* increase delay 1ms -> 4ms */
 	{0x002C, 0x0003},
-	{0x0100, 0x5283}, // 5283 appears to put the throttle at ~42 with no tearing - netarchy
-	{0x0104, 0x0180},
+	{0x0100, 0x3703}, // last 5 bits change pixel clock divider, 00010 (3) sets divider to 4, we like 4 combined with modded PLL clock div - netarchy
+	{0x0104, 0x0180}, // LCD configuration register, bad things happen if you change this - netarchy
 	{0x0140, 0x003F},
 	{0x0144, 0x00EF},
 	{0x0148, 0x0016},
@@ -245,7 +245,7 @@ struct s1d_regs {
 	{0x0294, 0x0000},
 	{0x0400, 0x8000},
 	{0x0404, 0x1001},
-	{0x0480, 0x0001},
+	{0x0480, 0x0001}, // last digit changes video clock divider, default 1 for a 2x divider - netarchy
 	{0x0500, 0x0000},
 	{0x0504, 0x0011},
 	{0x0508, 0x0000},
