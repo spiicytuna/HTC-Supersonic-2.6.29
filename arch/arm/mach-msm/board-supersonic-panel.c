@@ -204,6 +204,10 @@ struct s1d_regs {
 	unsigned reg;
 	unsigned val;
 } s1d13775_init_seq[] = {
+	// playing with registers for alternative epson fps fix- netarchy
+//	{0x0100, 0x3702}, original value for 0x0100, LCD Clock Register
+	// end registers
+	
 	{0x001C, 0x1500},
 	{0x0020, 0x3047},
 	{0x0024, 0x401A},
@@ -216,7 +220,7 @@ struct s1d_regs {
 	{0x002C, 0x0002},
 	{REG_WAIT, 0x0004}, /* increase delay 1ms -> 4ms */
 	{0x002C, 0x0003},
-	{0x0100, 0x3702},
+	{0x0100, 0x5283}, // 5283 appears to put the throttle at ~42 with no tearing - netarchy
 	{0x0104, 0x0180},
 	{0x0140, 0x003F},
 	{0x0144, 0x00EF},
@@ -847,7 +851,7 @@ mddi_epson_power(struct msm_mddi_client_data *client_data, int on)
 }
 
 static struct msm_mddi_platform_data mddi_pdata = {
-	.clk_rate = 384000000,
+	.clk_rate = 384000000, //384000000
 	.fb_resource = resources_msm_fb,
 	.num_clients = 2,
 	.client_platform_data = {
@@ -877,6 +881,8 @@ static struct platform_driver suc_backlight_driver = {
 
 static struct msm_mdp_platform_data mdp_pdata = {
 	.dma_channel = MDP_DMA_S,
+// comment above and uncomment below for hacked epson fps fix
+//	.dma_channel = MDP_DMA_P, 
 };
 
 int __init supersonic_init_panel(void)
@@ -895,12 +901,12 @@ int __init supersonic_init_panel(void)
 	vreg_lcd_2v8 = vreg_get(0, "synt");
 	if (IS_ERR(vreg_lcd_2v8))
 		return PTR_ERR(vreg_lcd_2v8);
-
+// start commenting here for old epson fps fix - netarchy
 	if (panel_type == PANEL_SHARP)
 		mdp_pdata.ignore_pixel_data_attr = 1;
 	else
 		mdp_pdata.ignore_pixel_data_attr = 0;
-
+// stop commenting here - netarchy
 	msm_device_mdp.dev.platform_data = &mdp_pdata;
 	rc = platform_device_register(&msm_device_mdp);
 	if (rc)
