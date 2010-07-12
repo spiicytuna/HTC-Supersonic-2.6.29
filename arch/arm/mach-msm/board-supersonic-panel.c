@@ -210,7 +210,7 @@ struct s1d_regs {
 	
 	{0x001C, 0x1500},
 	{0x0020, 0x3047}, //original value 3047
-	{0x0024, 0x4016}, // original value 401A, last 5 bits set PLL clock div, 1A=27 div - netarchy
+	{0x0024, 0x401A}, // original value 401A, last 5 bits set PLL clock div, 1A=27 div - netarchy 16
 	{0x0028, 0x031A}, // Pixel Clock select, where we get our base clock from, default 031A, sets clock origin from PLL - netarchy
 	{0x002C, 0x0001},
 	{REG_WAIT, 0x0004}, /* increase delay 1ms -> 4ms */
@@ -220,7 +220,7 @@ struct s1d_regs {
 	{0x002C, 0x0002},
 	{REG_WAIT, 0x0004}, /* increase delay 1ms -> 4ms */
 	{0x002C, 0x0003},
-	{0x0100, 0x3703}, // last 5 bits change pixel clock divider, 00010 (3) sets divider to 4, we like 4 combined with modded PLL clock div - netarchy
+	{0x0100, 0x3702}, // last 5 bits change pixel clock divider, 00010 (3) sets divider to 4, we like 4 combined with modded PLL clock div - netarchy
 	{0x0104, 0x0180}, // 180, LCD configuration register, bad things happen if you change this - netarchy
 	{0x0140, 0x003F},
 	{0x0144, 0x00EF},
@@ -244,7 +244,7 @@ struct s1d_regs {
 	{0x028C, 0x0001},
 	{0x0294, 0x0000},
 	{0x0400, 0x8000},
-	{0x0404, 0x1064}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
+	{0x0404, 0x1032}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
 	{0x0480, 0x0001}, // last digit changes video clock divider, default 1 for a 2x divider - netarchy
 	{0x0500, 0x0000},
 	{0x0504, 0x0011}, // original value 11
@@ -880,9 +880,9 @@ static struct platform_driver suc_backlight_driver = {
 };
 
 static struct msm_mdp_platform_data mdp_pdata = {
-	.dma_channel = MDP_DMA_S,
+//	.dma_channel = MDP_DMA_S,
 // comment above and uncomment below for hacked epson fps fix
-//	.dma_channel = MDP_DMA_P, 
+	.dma_channel = MDP_DMA_P, 
 };
 
 int __init supersonic_init_panel(void)
@@ -902,10 +902,10 @@ int __init supersonic_init_panel(void)
 	if (IS_ERR(vreg_lcd_2v8))
 		return PTR_ERR(vreg_lcd_2v8);
 // start commenting here for old epson fps fix - netarchy
-	if (panel_type == PANEL_SHARP)
-		mdp_pdata.ignore_pixel_data_attr = 1;
-	else
-		mdp_pdata.ignore_pixel_data_attr = 0;
+//	if (panel_type == PANEL_SHARP)
+//		mdp_pdata.ignore_pixel_data_attr = 1;
+//	else
+//		mdp_pdata.ignore_pixel_data_attr = 0;
 // stop commenting here - netarchy
 	msm_device_mdp.dev.platform_data = &mdp_pdata;
 	rc = platform_device_register(&msm_device_mdp);
