@@ -244,7 +244,7 @@ struct s1d_regs {
 	{0x028C, 0x0001},
 	{0x0294, 0x0000},
 	{0x0400, 0x8000},
-	{0x0404, 0x1019}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
+	{0x0404, 0x100F}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
 	{0x0480, 0x0001}, // last digit changes video clock divider, default 1 for a 2x divider - netarchy
 	{0x0500, 0x0000},
 	{0x0504, 0x0011}, // original value 11
@@ -680,7 +680,7 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 		qspi_send_9bit(0x0, 0x29);
 		client_data->remote_write(client_data, 0x7000, 0x0324);
 		client_data->remote_write(client_data, 0x4000, 0x0600);
-		client_data->remote_write(client_data, 0x1019, 0x0404); // Set anti-tearing on unblank (including the intitial unblank at boot time)
+		client_data->remote_write(client_data, 0x100F, 0x0404); // Set anti-tearing on unblank (including the intitial unblank at boot time)
 	}
 
 	backlight_control(1);
@@ -879,12 +879,12 @@ static struct platform_driver suc_backlight_driver = {
 		.owner = THIS_MODULE,
 	},
 };
-
-static struct msm_mdp_platform_data mdp_pdata = {
-//	.dma_channel = MDP_DMA_S,
+static struct msm_mdp_platform_data mdp_pdata; // declaring without a value so we can modify in supersonic_init_panel
+//static struct msm_mdp_platform_data mdp_pdata = {
+// .dma_channel = MDP_DMA_S,
 // comment above and uncomment below for hacked epson fps fix
-	.dma_channel = MDP_DMA_P, 
-};
+//.dma_channel = MDP_DMA_P,
+//};
 
 int __init supersonic_init_panel(void)
 {
@@ -908,6 +908,14 @@ int __init supersonic_init_panel(void)
 //	else
 //		mdp_pdata.ignore_pixel_data_attr = 0;
 // stop commenting here - netarchy
+
+// If we have an epson panel, use the MDP_DMA_P path otherwise use the MDP_DMA_S, to avoid some possible issues for people with nova panels that decide to flash this -netarchy
+	if (panel_type == PANEL_SHARP)
+		mdp_pdata.dma_channel = MDP_DMA_P;
+	else
+		mdp_pdata.dma_channel = MDP_DMA_S;
+
+
 	msm_device_mdp.dev.platform_data = &mdp_pdata;
 	rc = platform_device_register(&msm_device_mdp);
 	if (rc)
