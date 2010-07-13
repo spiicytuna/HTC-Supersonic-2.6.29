@@ -244,7 +244,7 @@ struct s1d_regs {
 	{0x028C, 0x0001},
 	{0x0294, 0x0000},
 	{0x0400, 0x8000},
-	{0x0404, 0x1032}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
+	{0x0404, 0x1019}, // original value 1001, Bits 0-9 set the Tearing Effect delay (read: it gets rid of fucking TEARING)
 	{0x0480, 0x0001}, // last digit changes video clock divider, default 1 for a 2x divider - netarchy
 	{0x0500, 0x0000},
 	{0x0504, 0x0011}, // original value 11
@@ -680,6 +680,7 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 		qspi_send_9bit(0x0, 0x29);
 		client_data->remote_write(client_data, 0x7000, 0x0324);
 		client_data->remote_write(client_data, 0x4000, 0x0600);
+		client_data->remote_write(client_data, 0x1019, 0x0404); // Set anti-tearing on unblank (including the intitial unblank at boot time)
 	}
 
 	backlight_control(1);
