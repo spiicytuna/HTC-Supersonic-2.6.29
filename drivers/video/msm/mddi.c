@@ -932,14 +932,15 @@ dummy_client:
 		goto error_mddi_interface;
 	}
 
-	extern int panel_type;
-	if(panel_type == 0){
-	mddi_remote_write(&mddi->client_data, (0x00ff & 0x1032 ), 0x0404); // set anti tearing attribute on boot
-	}
+//	extern int panel_type;
+//	if(panel_type == 0){
+//	mddi_remote_write(&mddi->client_data, (0x00ff & 0x4B), 0x0404); // set anti tearing attribute on boot
+//	}
 
 	mddi->client_pdev.dev.platform_data = &mddi->client_data;
 	printk(KERN_INFO "mddi: publish: %s\n", mddi->client_name);
 	platform_device_register(&mddi->client_pdev);
+
 	return 0;
 
 error_mddi_interface:
@@ -957,6 +958,8 @@ error_ioremap:
 
 	printk(KERN_INFO "mddi: mddi_init() failed (%d)\n", ret);
 	return ret;
+
+
 }
 
 static struct platform_driver mddi_driver = {
