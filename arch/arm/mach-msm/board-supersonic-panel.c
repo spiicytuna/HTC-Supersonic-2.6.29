@@ -64,6 +64,8 @@ struct nov_regs {
 	unsigned reg;
 	unsigned val;
 } nov_init_seq[] = {
+	{0xb101, 0x01}, // AssassinLament's nova panel
+	{0xb102, 0x6C}, // T2 values for his FPS fix
 	{0xc000, 0x86},
 	{0xc001, 0x00},
 	{0xc002, 0x86},
@@ -671,6 +673,8 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 	if (panel_type == PANEL_AUO) {
 		suc_backlight_switch(LED_FULL);
 		client_data->remote_write(client_data, 0x00, 0x2900);
+		client_data->remote_write(client_data, 0x01, 0xb101); // Setting AssassinLament's T2 registers to apply on unblank 
+		client_data->remote_write(client_data, 0x6C, 0xb102); // so fix is active on boot without needing a screen cycle
 		msleep(100);
 		client_data->remote_write(client_data, 0x24, 0x5300);
 	} else {
@@ -879,12 +883,10 @@ static struct platform_driver suc_backlight_driver = {
 		.owner = THIS_MODULE,
 	},
 };
-static struct msm_mdp_platform_data mdp_pdata; // declaring without a value so we can modify in supersonic_init_panel
-//static struct msm_mdp_platform_data mdp_pdata = {
-// .dma_channel = MDP_DMA_S,
-// comment above and uncomment below for hacked epson fps fix
-//.dma_channel = MDP_DMA_P,
-//};
+
+static struct msm_mdp_platform_data mdp_pdata = {
+	.dma_channel = MDP_DMA_P, 		// Throw video data down the P channel for both Epson and Nova as it should work with Assassin's fix
+};
 
 int __init supersonic_init_panel(void)
 {
@@ -908,13 +910,6 @@ int __init supersonic_init_panel(void)
 //	else
 //		mdp_pdata.ignore_pixel_data_attr = 0;
 // stop commenting here - netarchy
-
-// If we have an epson panel, use the MDP_DMA_P path otherwise use the MDP_DMA_S, to avoid some possible issues for people with nova panels that decide to flash this -netarchy
-	if (panel_type == PANEL_SHARP)
-		mdp_pdata.dma_channel = MDP_DMA_P;
-	else
-		mdp_pdata.dma_channel = MDP_DMA_S;
-
 
 	msm_device_mdp.dev.platform_data = &mdp_pdata;
 	rc = platform_device_register(&msm_device_mdp);
