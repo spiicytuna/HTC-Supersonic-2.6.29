@@ -64,8 +64,6 @@ struct nov_regs {
 	unsigned reg;
 	unsigned val;
 } nov_init_seq[] = {
-	{0xb101, 0x01}, // AssassinLament's nova panel
-	{0xb102, 0x6C}, // T2 values for his FPS fix
 	{0xc000, 0x86},
 	{0xc001, 0x00},
 	{0xc002, 0x86},
@@ -196,6 +194,9 @@ struct nov_regs {
 	{0x6A18, 0xff},
 	{0x6A17, 0x01},
 	{0xF402, 0x14},
+
+	{0xb101, 0x01}, // AssassinLament's nova panel
+	{0xb102, 0x6C}, // T2 values for his FPS fix
 
 	{0x3500, 0x00},
 	{0x1100, 0x0},
@@ -673,10 +674,10 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 	if (panel_type == PANEL_AUO) {
 		suc_backlight_switch(LED_FULL);
 		client_data->remote_write(client_data, 0x00, 0x2900);
-		client_data->remote_write(client_data, 0x01, 0xb101); // Setting AssassinLament's T2 registers to apply on unblank 
-		client_data->remote_write(client_data, 0x6C, 0xb102); // so fix is active on boot without needing a screen cycle
 		msleep(100);
 		client_data->remote_write(client_data, 0x24, 0x5300);
+		client_data->remote_write(client_data, 0x01, 0xb101); // Setting AssassinLament's T2 registers to apply on unblank 
+		client_data->remote_write(client_data, 0x6C, 0xb102); // so fix is active on boot without needing a screen cycle
 	} else {
 		suc_backlight_switch(LED_FULL);
 		client_data->remote_write(client_data, 0x4000, 0x0600);
