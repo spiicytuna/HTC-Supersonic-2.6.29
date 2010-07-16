@@ -695,8 +695,6 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 		client_data->remote_write(client_data, 0x00, 0x2900);
 		msleep(100);
 		client_data->remote_write(client_data, 0x24, 0x5300);
-		client_data->remote_write(client_data, 0x01, 0xb101); // Setting AssassinLament's T2 registers to apply on unblank 
-		client_data->remote_write(client_data, 0x6C, 0xb102); // so fix is active on boot without needing a screen cycle
 	} else {
 		suc_backlight_switch(LED_FULL);
 		client_data->remote_write(client_data, 0x4000, 0x0600);
