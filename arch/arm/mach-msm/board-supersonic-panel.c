@@ -35,6 +35,12 @@
 #include "devices.h"
 #include "proc_comm.h"
 
+/* 
+** Innitial T2 Settings
+** 370 Should net 55fps on Novatek Panels
+*/
+int savedT2 = 370;
+
 #if 1
 #define B(s...) printk(s)
 #else
@@ -195,8 +201,9 @@ struct nov_regs {
 	{0x6A17, 0x01},
 	{0xF402, 0x14},
 
-	{0xb101, 0x01}, // AssassinLament's nova panel
-	{0xb102, 0x6C}, // T2 values for his FPS fix
+	/* Remove T2 from init to unsticky */
+	//{0xb101, 0x01}, // AssassinLament's nova panel
+	//{0xb102, 0x72}, // T2 values for his FPS fix
 
 	{0x3500, 0x00},
 	{0x1100, 0x0},
@@ -660,6 +667,18 @@ static int
 supersonic_panel_blank(struct msm_mddi_bridge_platform_data *bridge_data,
 			struct msm_mddi_client_data *client_data)
 {
+	/*
+	** Get the T2 settings into savedT2
+	** And if there is a value, save it to savedT2
+	*/
+	unsigned readT2;
+	readT2 = 0;
+	readT2 |= client_data->remote_read(client_data, 0xb101) << 8;
+	readT2 |= client_data->remote_read(client_data, 0xb102);
+	if (readT2)
+		savedT2 = readT2;
+	// Done
+	
 	B(KERN_DEBUG "%s\n", __func__);
 	suc_backlight_switch(LED_OFF);
 	backlight_control(0);
@@ -689,6 +708,21 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 	}
 
 	backlight_control(1);
+	
+	/*
+	** Check T2 if HTC reset it, then change it back.
+	*/
+	unsigned readT2;
+	readT2 = 0;
+	readT2 |= client_data->remote_read(client_data, 0xb101) << 8;
+	readT2 |= client_data->remote_read(client_data, 0xb102);
+	if (readT2 != savedT2)
+	{
+		client_data->remote_write(client_data, (0xff00 & savedT2) >> 8, 0xb101);
+		client_data->remote_write(client_data, (0x00ff & savedT2), 0xb102);
+	}
+	// Done!
+	
 	return 0;
 }
 
