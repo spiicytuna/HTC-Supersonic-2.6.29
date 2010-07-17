@@ -667,17 +667,24 @@ static int
 supersonic_panel_blank(struct msm_mddi_bridge_platform_data *bridge_data,
 			struct msm_mddi_client_data *client_data)
 {
-	/*
-	** Get the T2 settings into savedT2
-	** And if there is a value, save it to savedT2
-	*/
-	unsigned readT2;
-	readT2 = 0;
-	readT2 |= client_data->remote_read(client_data, 0xb101) << 8;
-	readT2 |= client_data->remote_read(client_data, 0xb102);
-	if (readT2)
+	/* For Novatek Panels Only */
+	if (panel_type == 1)
+	{
+		/*
+		** Get the T2 value into readT2
+		*/
+		unsigned readT2;
+		readT2 = 0;
+		readT2 |= client_data->remote_read(client_data, 0xb101) << 8;
+		readT2 |= client_data->remote_read(client_data, 0xb102);
+		/* readT2 value safety check */
+		if (readT2 < 245 || readT2 > 999)
+		{
+			readT2 = 370;
+		}
 		savedT2 = readT2;
-	// Done
+	}
+	/* Done */
 	
 	B(KERN_DEBUG "%s\n", __func__);
 	suc_backlight_switch(LED_OFF);
@@ -707,19 +714,21 @@ supersonic_panel_unblank(struct msm_mddi_bridge_platform_data *bridge_data,
 
 	backlight_control(1);
 	
-	/*
-	** Check T2 if HTC reset it, then change it back.
-	*/
-	unsigned readT2;
-	readT2 = 0;
-	readT2 |= client_data->remote_read(client_data, 0xb101) << 8;
-	readT2 |= client_data->remote_read(client_data, 0xb102);
-	if (readT2 != savedT2)
+	/* For Novatek Panels Only */
+	if (panel_type == 1)
 	{
+		/*
+		** Check saved value just to be safe
+		*/
+		if (savedT2 < 245 || savedT2 > 999)
+		{
+			savedT2 = 370;
+		}
+		/* Write savedT2 to T2 */
 		client_data->remote_write(client_data, (0xff00 & savedT2) >> 8, 0xb101);
 		client_data->remote_write(client_data, (0x00ff & savedT2), 0xb102);
 	}
-	// Done!
+	/* Done */
 	
 	return 0;
 }
