@@ -918,7 +918,8 @@ static struct platform_driver suc_backlight_driver = {
 };
 
 static struct msm_mdp_platform_data mdp_pdata = {
-	.dma_channel = MDP_DMA_P, 		// Throw video data down the P channel for both Epson and Nova as it should work with Assassin's fix
+	.dma_channel = MDP_DMA_P, 		// Throw video data down the P channel for both Epson and Nova as it should work with Assassin's fix. 
+	// This breaks HDMI output as a tradeoff.
 };
 
 int __init supersonic_init_panel(void)
